@@ -1,0 +1,10 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: my-custom-egress
+spec:
+  ports:
+  - protocol: TCP
+    port: 60000
+  type: LoadBalancer
+  
