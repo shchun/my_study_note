@@ -4,20 +4,25 @@ with AKS
 
 5/22
 Reference : https://github.com/tadeugr/aks-references/
-
+```
 AKS_NAME="hyo-cluster"
 AKS_RG="rg-hyo-cluster"
 SUBSCRIPTION="ae36a85f-76be-4bb1-bc9e-e92d8a0af831"
 REGION="koreacentral"
+```
 //
+```
 az group create \
   --location $REGION \
   --name $AKS_RG \
   --subscription $SUBSCRIPTION
+```
 //
+```
 az ad sp create-for-rbac \
   --skip-assignment \
   -n "sp-aks"
+```
 //
 Changing "sp-aks" to a valid URI of "http://sp-aks", which is the required format used for service principal names
 {
