@@ -74,12 +74,12 @@ az aks create \
   --node-vm-size Standard_B2s \
   --node-count 1 \
   --tags 'ENV=DEV' 'SRV=EXAMPLE2'
-```
+
 // backups --
 //  --network-plugin kubenet \
 //  --load-balancer-sku basic \
 // ----
-
+```
 // delete
 ```
 az aks delete \
@@ -99,15 +99,16 @@ az aks get-credentials \
 export KUBECONFIG=$FILE
 ```
 ==============
-Create VM
+Create VM : for testing
 
-
-
+```
 VM_NAME="hyo-test-vm"
 VM_RG="rg-hyo-test-vm"
 //SUBSCRIPTION="REPLACE-WITH-YOUR-VM-SUBSCRIPTION"
 //REGION="REPLACE-WITH-YOUR-VM-REGION"
-
+```
+// group
+```
 az group create \
   --location $REGION \
   --name $VM_RG \
@@ -123,9 +124,10 @@ az group create \
   "tags": null,
   "type": "Microsoft.Resources/resourceGroups"
 }
-
+```
 ----
 // create vm just for test
+```
 az vm create \
  --location $REGION \
  --subscription $SUBSCRIPTION \
@@ -149,10 +151,14 @@ az vm create \
  "resourceGroup": "rg-hyo-test-vm",
  "zones": ""
 }
+```
 // connect to VM
-ssh devops@20.194.5.74
 
+```
+ssh devops@20.194.5.74
+```
 // apply following
+```
 kind: Service
 apiVersion: v1
 metadata:
@@ -162,16 +168,17 @@ spec:
   - protocol: TCP
     port: 60000
   type: LoadBalancer
-
+```
 //
+```
 기본적으로 kubectl은 $HOME/.kube 디렉터리에서 config라는 이름의 파일을 찾는다. KUBECONFIG 환경 변수를 설정하거나 --kubeconfig 플래그를 지정해서 다른 kubeconfig 파일을 사용할 수 있다.
 kubectl get pods --kubeconfig my_study_note/hyo-cluster.kubeconfig
 export KUBECONFIG=$FILE    // set as ENV
-
+```
 [ HANDS-ON ] External nginx-ingress / cert-manager (letsencrypt) / external-dns
 -------------------------------------
+```
 az ad sp create-for-rbac -n sp-external-dns
-
 {
   "appId": "cd4d61e4-ac40-4f24-b6c4-a0ca1b62b1af",
   "displayName": "sp-external-dns",
@@ -179,15 +186,17 @@ az ad sp create-for-rbac -n sp-external-dns
   "password": "fjQHBwsKcWVzRnEcJD-wLWvR6~v_btowKp",
   "tenant": "ab5cf8c1-0907-4db6-a510-9feba384f8a3"
 }
+```
 //---
-
+```
 ns1-04.azure-dns.com.
 ns2-04.azure-dns.net.
 ns3-04.azure-dns.org.
 ns4-04.azure-dns.info.
-
 // az.precipi.com
-
+```
+//
+```
 az role assignment create \
   --role "Reader" \
   --assignee "cd4d61e4-ac40-4f24-b6c4-a0ca1b62b1af" \
@@ -206,7 +215,9 @@ az role assignment create \
     "scope": "/subscriptions/ae36a85f-76be-4bb1-bc9e-e92d8a0af831/resourceGroups/az.precipi.com",
     "type": "Microsoft.Authorization/roleAssignments"
   }
+```  
 //
+```
 az role assignment create \
   --role "Contributor" \
   --assignee "cd4d61e4-ac40-4f24-b6c4-a0ca1b62b1af" \
@@ -229,9 +240,9 @@ az account show --query "tenantId"
 "ab5cf8c1-0907-4db6-a510-9feba384f8a3"
 az account show --query "id"
 "ae36a85f-76be-4bb1-bc9e-e92d8a0af831"
-
+```
 //
-
+```
 vim azure.json
 
 {
@@ -243,8 +254,9 @@ vim azure.json
 }
 kubectl create ns my-app
 kubectl create secret generic azure-config-file --from-file=./azure.json -n my-app
-
+```
 //
+```
 kubectl create namespace ingress-external
 
 // xxx - helm repo add stable https://kubernetes-charts.storage.googleapis.com/
@@ -267,7 +279,9 @@ helm upgrade -i ingress-external stable/nginx-ingress \
     --set controller.replicaCount=2 \
     --set controller.nodeSelector."beta\.kubernetes\.io/os"=linux \
     --set defaultBackend.nodeSelector."beta\.kubernetes\.io/os"=linux
+```
 //
+```
 vim external-dns.yaml
 ---
 apiVersion: v1
@@ -346,8 +360,9 @@ clusterrole.rbac.authorization.k8s.io/external-dns created
 Warning: rbac.authorization.k8s.io/v1beta1 ClusterRoleBinding is deprecated in v1.17+, unavailable in v1.22+; use rbac.authorization.k8s.io/v1 ClusterRoleBinding
 clusterrolebinding.rbac.authorization.k8s.io/external-dns-viewer created
 deployment.apps/external-dns created          
-
+```
 // cert
+```
 kubectl create namespace cert-manager
 
 helm repo add jetstack https://charts.jetstack.io
@@ -358,7 +373,9 @@ helm upgrade -i cert-manager jetstack/cert-manager \
   --namespace cert-manager \
   --version v0.15.1 \
   --set installCRDs=true
+```
 //
+```
 vim letsencrypt.yaml
 //
 apiVersion: cert-manager.io/v1alpha2
@@ -379,8 +396,9 @@ spec:
 kubectl apply -f letsencrypt.yaml
 
 kubectl describe clusterissuers letsencrypt
-
-
+```
+//
+```
 vim app-my-app.yaml
 
 
@@ -444,3 +462,4 @@ kubectl -n my-app apply -f app-my-app.yaml
 kubectl get certificate -n my-app
 NAME         READY   SECRET       AGE
 tls-secret   True    tls-secret   8m42ss
+```
