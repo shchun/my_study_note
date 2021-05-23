@@ -4,26 +4,26 @@ with AKS
 
 5/22
 Reference : https://github.com/tadeugr/aks-references/
+
+// define values
 ```
 AKS_NAME="hyo-cluster"
 AKS_RG="rg-hyo-cluster"
 SUBSCRIPTION="ae36a85f-76be-4bb1-bc9e-e92d8a0af831"
 REGION="koreacentral"
 ```
-//
+// resource group
 ```
 az group create \
   --location $REGION \
   --name $AKS_RG \
   --subscription $SUBSCRIPTION
 ```
-//
+// service principal
 ```
 az ad sp create-for-rbac \
   --skip-assignment \
   -n "sp-aks"
-```
-//
 Changing "sp-aks" to a valid URI of "http://sp-aks", which is the required format used for service principal names
 {
   "appId": "cb07b3ab-4943-4450-b31a-82ffa63b3790",
@@ -32,7 +32,9 @@ Changing "sp-aks" to a valid URI of "http://sp-aks", which is the required forma
   "password": "7e5e0be0-9fec-4c0c-8a3e-529899b9fcea",
   "tenant": "ab5cf8c1-0907-4db6-a510-9feba384f8a3"
 }
+```
 //
+```
 az ad sp list -o json | jq ".[].displayName"
 "aciapi"
 "O365 Demeter"
@@ -55,8 +57,9 @@ az ad sp list -o json | jq ".[].displayName"
 "sp-aks"
 "IAM Supportability"
 "MCAPI Authorization Prod"
+```
 //
-
+```
 az aks create \
   --location $REGION \
   --subscription $SUBSCRIPTION \
@@ -71,29 +74,30 @@ az aks create \
   --node-vm-size Standard_B2s \
   --node-count 1 \
   --tags 'ENV=DEV' 'SRV=EXAMPLE2'
-
+```
 // backups --
 //  --network-plugin kubenet \
 //  --load-balancer-sku basic \
 // ----
 
 // delete
+```
 az aks delete \
   --subscription $SUBSCRIPTION \
   --resource-group $AKS_RG \
   --name $AKS_NAME
-
-//
 FILE="./$AKS_NAME.kubeconfig"
-
+```
+// get credentials
+```
 az aks get-credentials \
   -n $AKS_NAME \
   -g $AKS_RG \
   --subscription $SUBSCRIPTION \
   --admin \
   --file $FILE
-
 export KUBECONFIG=$FILE
+```
 ==============
 Create VM
 
